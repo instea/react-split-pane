@@ -59,7 +59,7 @@ class SplitPane extends Component {
     }
 
     onTouchStart(event) {
-        if (this.props.allowResize && !this.props.size) {
+        if (this.props.allowResize) {
             unFocus(document, window);
             const position = this.props.split === 'vertical' ? event.touches[0].clientX : event.touches[0].clientY;
             if (typeof this.props.onDragStarted === 'function') {
@@ -82,7 +82,7 @@ class SplitPane extends Component {
     }
 
     onTouchMove(event) {
-        if (this.props.allowResize && !this.props.size) {
+        if (this.props.allowResize) {
             if (this.state.active) {
                 unFocus(document, window);
                 const isPrimaryFirst = this.props.primary === 'first';
@@ -100,7 +100,7 @@ class SplitPane extends Component {
                             ? width
                             : height;
                         const position = this.state.position;
-                        const newPosition = isPrimaryFirst ? (position - current) : (current - position);
+                        const positionDiff = isPrimaryFirst ? (position - current) : (current - position);
 
                         let maxSize = this.props.maxSize;
                         if ((this.props.maxSize !== undefined) && (this.props.maxSize <= 0)) {
@@ -112,7 +112,7 @@ class SplitPane extends Component {
                             }
                         }
 
-                        let newSize = size - newPosition;
+                        let newSize = size - positionDiff;
 
                         if (newSize < this.props.minSize) {
                             newSize = this.props.minSize;
@@ -128,12 +128,14 @@ class SplitPane extends Component {
                         if (this.props.onChange) {
                             this.props.onChange(newSize);
                         }
-                        this.setState({
-                            draggedSize: newSize,
-                        });
-                        ref.setState({
-                            size: newSize,
-                        });
+                        if (!this.props.size) {
+                            this.setState({
+                                draggedSize: newSize,
+                            });
+                            ref.setState({
+                                size: newSize,
+                            });
+                        }
                     }
                 }
             }
@@ -141,7 +143,7 @@ class SplitPane extends Component {
     }
 
     onMouseUp() {
-        if (this.props.allowResize && !this.props.size) {
+        if (this.props.allowResize) {
             if (this.state.active) {
                 if (typeof this.props.onDragFinished === 'function') {
                     this.props.onDragFinished();
